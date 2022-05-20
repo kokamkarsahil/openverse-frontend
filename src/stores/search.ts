@@ -28,6 +28,8 @@ import {
   mediaUniqueFilterKeys,
 } from '~/constants/filters'
 
+import { useFeatureFlagStore } from '~/stores/feature-flag'
+
 import type { Dictionary } from 'vue-router/types/router'
 
 export const isSearchTypeSupported = (
@@ -141,10 +143,18 @@ export const useSearchStore = defineStore('search', {
   },
   actions: {
     setSearchType(type: SearchType) {
-      this.searchType = type
-      if (!isAdditionalSearchType(type)) {
-        this.clearOtherMediaTypeFilters(type)
+      const featureFlagStore = useFeatureFlagStore()
+      if (
+        !featureFlagStore.isOn('external_sources') &&
+        isAdditionalSearchType(type)
+      ) {
+        throw new Error(
+          `Please enable the 'external_sources' flag to use the ${type}`
+        )
       }
+
+      this.searchType = type
+      this.clearOtherMediaTypeFilters(type)
     },
     setSearchTerm(term: string) {
       this.searchTerm = term.trim()
@@ -241,7 +251,7 @@ export const useSearchStore = defineStore('search', {
      * After a search type is changed, unchecks all the filters that are not
      * applicable for this Media type.
      */
-    clearOtherMediaTypeFilters(searchType: SupportedSearchType) {
+    clearOtherMediaTypeFilters(searchType: SearchType) {
       const mediaTypesToClear = supportedSearchTypes.filter(
         (type) => type !== searchType
       )
