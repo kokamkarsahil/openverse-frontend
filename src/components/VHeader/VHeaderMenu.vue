@@ -9,11 +9,9 @@ import {
 } from '@nuxtjs/composition-api'
 
 import { ALL_MEDIA, supportedMediaTypes } from '~/constants/media'
-
+import useSearchType from '~/composables/use-search-type'
 import { useMediaStore } from '~/stores/media'
 import { useSearchStore } from '~/stores/search'
-
-import useSearchType from '~/composables/use-search-type'
 
 import VMobileMenuModal from '~/components/VContentSwitcher/VMobileMenuModal.vue'
 import VSearchTypePopover from '~/components/VContentSwitcher/VSearchTypePopover.vue'

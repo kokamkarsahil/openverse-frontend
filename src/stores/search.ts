@@ -51,9 +51,6 @@ function computeQueryParams(
   filters: Filters,
   searchTerm: string
 ) {
-  if (isAdditionalSearchType(searchType)) {
-    return {}
-  }
   const query = { ...filtersToQueryData(filters, searchType) }
 
   const queryKeys = Object.keys(query) as (keyof ApiQueryParams)[]
