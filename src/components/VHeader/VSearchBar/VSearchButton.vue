@@ -33,10 +33,9 @@ import { useBrowserIsMobile } from '~/composables/use-browser-detection'
 
 import VIcon from '~/components/VIcon/VIcon.vue'
 import VButton from '~/components/VButton.vue'
+import type { FieldSize } from '~/components/VInputField/VInputField.vue'
 
 import searchIcon from '~/assets/icons/search.svg'
-
-type SearchButtonSize = 'small' | 'medium' | 'large' | 'standalone'
 
 export default defineComponent({
   name: 'VSearchButton',
@@ -44,7 +43,7 @@ export default defineComponent({
   inheritAttrs: false,
   props: {
     size: {
-      type: String as PropType<SearchButtonSize>,
+      type: String as PropType<FieldSize>,
       required: true,
     },
     isHomeRoute: {
@@ -73,7 +72,7 @@ export default defineComponent({
             small: ['w-10', 'md:w-12', 'h-10', 'md:h-12'],
             medium: ['w-12', 'h-12'],
             large: ['w-14', 'h-14'],
-            standalone: ['w-14', 'md:w-auto', 'h-14', 'md:h-[69px]'],
+            standalone: ['w-14', 'md:w-auto', 'h-full'],
           }[props.size]
         : undefined
     })
