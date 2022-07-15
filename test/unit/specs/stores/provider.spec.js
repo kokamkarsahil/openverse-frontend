@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { AUDIO, IMAGE, supportedMediaTypes } from '~/constants/media'
 import { useSearchStore } from '~/stores/search'
 import { useProviderStore } from '~/stores/provider'
-import { providerServices } from '~/data/media-provider-service'
+import { initProviderServices } from '~/data/media-provider-service'
 import { initialFetchState } from '~/composables/use-fetch-state'
 
 jest.mock('axios', () => ({
@@ -40,23 +40,20 @@ const mockData = [
   },
 ]
 
+const mockImplementation = () => Promise.resolve({ data: [...mockData] })
+const mock = jest.fn().mockImplementation(mockImplementation)
 jest.mock('~/data/media-provider-service', () => ({
-  providerServices: {
-    audio:
+  initProviderServices: {
+    audio: () =>
       /** @type {typeof import('~/data/media-provider-services').MediaProviderService} */ ({
-        getProviderStats: jest.fn(),
+        getProviderStats: mock,
       }),
-    image:
+    image: () =>
       /** @type {typeof import('~/data/media-provider-services').MediaProviderService} */ ({
-        getProviderStats: jest.fn(),
+        getProviderStats: mock,
       }),
   },
 }))
-for (const mediaType of supportedMediaTypes) {
-  providerServices[mediaType].getProviderStats.mockImplementation(() =>
-    Promise.resolve({ data: [...mockData] })
-  )
-}
 
 describe('Provider Store', () => {
   let providerStore
@@ -65,8 +62,7 @@ describe('Provider Store', () => {
     providerStore = useProviderStore()
   })
   afterEach(() => {
-    providerServices.audio.getProviderStats.mockClear()
-    providerServices.image.getProviderStats.mockClear()
+    mock.mockClear()
   })
   it('sets the default state', () => {
     expect(providerStore.providers).toEqual({
@@ -105,9 +101,11 @@ describe('Provider Store', () => {
 
   it('fetchMediaProviders on error', async () => {
     for (const mediaType of supportedMediaTypes) {
-      providerServices[mediaType].getProviderStats.mockImplementation(() =>
-        Promise.reject(new Error('Not found'))
-      )
+      initProviderServices[mediaType] = () => ({
+        getProviderStats: jest
+          .fn()
+          .mockImplementation(() => Promise.reject(new Error('Not found'))),
+      })
     }
     const searchStore = useSearchStore()
     await providerStore.fetchMediaProviders()
