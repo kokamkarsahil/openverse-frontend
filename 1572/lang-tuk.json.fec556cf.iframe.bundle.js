@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[163],{"./src/locales/tuk.json":function(module){module.exports=JSON.parse("{}")}}]);
