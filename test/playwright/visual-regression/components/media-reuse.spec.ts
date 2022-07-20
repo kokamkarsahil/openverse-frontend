@@ -24,7 +24,7 @@ test.describe('media-reuse', () => {
           )
           await dismissTranslationBanner(page)
 
-          await page.locator(`text=${tab.name}`).click()
+          await page.locator(`#${tab.id}`).click()
           // Make sure the tab is not focused and doesn't have a pink ring
           await page.locator('h3:has-text("Reuse content")').click()
           await expectSnapshot(

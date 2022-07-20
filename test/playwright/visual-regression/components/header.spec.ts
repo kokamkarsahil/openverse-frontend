@@ -10,7 +10,7 @@ import {
 } from '~~/test/playwright/utils/navigation'
 
 const headerSelector = '.main-header'
-const loadMoreSelector = 'button:has-text("Load more")'
+const loadMoreSelector = 'button[data-testid="load-more"]'
 
 test.describe('header snapshots', () => {
   for (const dir of languageDirections) {
