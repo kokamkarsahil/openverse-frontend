@@ -10,7 +10,6 @@ import {
 } from '~~/test/playwright/utils/navigation'
 
 const headerSelector = '.main-header'
-const loadMoreSelector = 'button[data-testid="load-more"]'
 
 test.describe('header snapshots', () => {
   for (const dir of languageDirections) {
@@ -26,8 +25,8 @@ test.describe('header snapshots', () => {
           })
 
           test('scrolled', async ({ page }) => {
-            await page.locator(loadMoreSelector).focus()
             await scrollToBottom(page)
+            await page.mouse.move(100, 150)
             await sleep(200)
             await expectSnapshot(
               `scrolled-${dir}`,
