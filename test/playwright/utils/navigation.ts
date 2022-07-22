@@ -36,8 +36,6 @@ const buttonSelectors = {
 const getMessages = (dir: LanguageDirection) =>
   dir === 'rtl' ? rtlMessages : enMessages
 
-const searchLabel = (dir: LanguageDirection) => getMessages(dir).search.search
-
 export function sleep(ms: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }
@@ -207,7 +205,7 @@ export const goToSearchTerm = async (
     // Wait for navigation
     await Promise.all([
       page.waitForNavigation(),
-      page.click(`[aria-label="${searchLabel(dir)}"]`),
+      page.click(`[aria-label="${getMessages(dir).search.search}"]`),
     ])
     await page.waitForLoadState('networkidle')
   }
