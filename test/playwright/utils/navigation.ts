@@ -6,6 +6,7 @@ import {
   IMAGE,
   MediaType,
   MODEL_3D,
+  SearchType,
   SupportedSearchType,
   VIDEO,
 } from '~/constants/media'
@@ -17,6 +18,13 @@ import rtlMessages from '~/locales/ar.json'
 const messages = {
   ltr: enMessages,
   rtl: rtlMessages,
+}
+
+const t = (label: string, dir: string): string | Record<string, unknown> => {
+  if (dir === 'rtl' && (label as keyof typeof messages.rtl) in messages[dir]) {
+    return messages[dir][label as keyof typeof messages.rtl]
+  }
+  return messages.ltr[label as keyof typeof messages.ltr]
 }
 
 export const languageDirections = ['ltr', 'rtl'] as const
@@ -46,12 +54,16 @@ export const searchTypePath = (searchType: SupportedSearchType) =>
   searchType === 'all' ? '' : `${searchType}`
 
 export const searchTypeNames = (dir: LanguageDirection = 'ltr') => {
+  const searchTypes = t('searchTypes', dir) as unknown as Record<
+    SearchType,
+    string
+  >
   return {
-    [ALL_MEDIA]: messages[dir]['search-type'][ALL_MEDIA],
-    [AUDIO]: messages[dir]['search-type'][AUDIO],
-    [IMAGE]: messages[dir]['search-type'][IMAGE],
-    [VIDEO]: messages[dir]['search-type'][VIDEO],
-    [MODEL_3D]: messages[dir]['search-type'][MODEL_3D],
+    [ALL_MEDIA]: searchTypes[ALL_MEDIA],
+    [AUDIO]: searchTypes[AUDIO],
+    [IMAGE]: searchTypes[IMAGE],
+    [VIDEO]: searchTypes[VIDEO],
+    [MODEL_3D]: searchTypes[MODEL_3D],
   }
 }
 
@@ -206,7 +218,7 @@ export const goToSearchTerm = async (
     // Wait for navigation
     await Promise.all([
       page.waitForNavigation(),
-      page.click(`[aria-label="${messages[dir].search.search}"]`),
+      page.click(`[aria-label="${t(dir, 'search').search}"]`),
     ])
     await page.waitForLoadState('networkidle')
   }
