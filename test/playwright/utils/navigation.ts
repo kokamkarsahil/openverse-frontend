@@ -54,7 +54,7 @@ export const searchTypePath = (searchType: SupportedSearchType) =>
   searchType === 'all' ? '' : `${searchType}`
 
 export const searchTypeNames = (dir: LanguageDirection = 'ltr') => {
-  const searchTypes = t('searchTypes', dir) as unknown as Record<
+  const searchTypes = t('search-type', dir) as unknown as Record<
     SearchType,
     string
   >
