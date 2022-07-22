@@ -14,6 +14,11 @@ import { SCREEN_SIZES } from '~/constants/screens'
 import enMessages from '~/locales/en.json'
 import rtlMessages from '~/locales/ar.json'
 
+const messages = {
+  ltr: enMessages,
+  rtl: rtlMessages,
+}
+
 export const languageDirections = ['ltr', 'rtl'] as const
 
 export const renderingContexts = [
@@ -33,9 +38,6 @@ const buttonSelectors = {
   contentSwitcher: '[aria-controls="content-switcher-modal"]',
 }
 
-const getMessages = (dir: LanguageDirection) =>
-  dir === 'rtl' ? rtlMessages : enMessages
-
 export function sleep(ms: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }
@@ -44,13 +46,12 @@ export const searchTypePath = (searchType: SupportedSearchType) =>
   searchType === 'all' ? '' : `${searchType}`
 
 export const searchTypeNames = (dir: LanguageDirection = 'ltr') => {
-  const messages = getMessages(dir)
   return {
-    [ALL_MEDIA]: messages['search-type'][ALL_MEDIA],
-    [AUDIO]: messages['search-type'][AUDIO],
-    [IMAGE]: messages['search-type'][IMAGE],
-    [VIDEO]: messages['search-type'][VIDEO],
-    [MODEL_3D]: messages['search-type'][MODEL_3D],
+    [ALL_MEDIA]: messages[dir]['search-type'][ALL_MEDIA],
+    [AUDIO]: messages[dir]['search-type'][AUDIO],
+    [IMAGE]: messages[dir]['search-type'][IMAGE],
+    [VIDEO]: messages[dir]['search-type'][VIDEO],
+    [MODEL_3D]: messages[dir]['search-type'][MODEL_3D],
   }
 }
 
@@ -205,7 +206,7 @@ export const goToSearchTerm = async (
     // Wait for navigation
     await Promise.all([
       page.waitForNavigation(),
-      page.click(`[aria-label="${getMessages(dir).search.search}"]`),
+      page.click(`[aria-label="${messages[dir].search.search}"]`),
     ])
     await page.waitForLoadState('networkidle')
   }
