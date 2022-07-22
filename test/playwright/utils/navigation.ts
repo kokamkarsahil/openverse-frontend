@@ -11,7 +11,20 @@ import {
 } from '~/constants/media'
 import { SCREEN_SIZES } from '~/constants/screens'
 
-import messages from '~/locales/en.json'
+import enMessages from '~/locales/en.json'
+import rtlMessages from '~/locales/ar.json'
+
+export const languageDirections = ['ltr', 'rtl'] as const
+
+export const renderingContexts = [
+  ['SSR', 'ltr'],
+  ['SSR', 'rtl'],
+  ['CSR', 'ltr'],
+  ['CSR', 'rtl'],
+] as const
+
+export type RenderMode = 'SSR' | 'CSR'
+export type LanguageDirection = 'ltr' | 'rtl'
 
 const smWidth = SCREEN_SIZES.get('sm') as number
 
@@ -20,20 +33,27 @@ const buttonSelectors = {
   contentSwitcher: '[aria-controls="content-switcher-modal"]',
 }
 
+const getMessages = (dir: LanguageDirection) =>
+  dir === 'rtl' ? rtlMessages : enMessages
+
+const searchLabel = (dir: LanguageDirection) => getMessages(dir).search.search
+
 export function sleep(ms: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }
 
-export type RenderMode = 'SSR' | 'CSR'
 export const searchTypePath = (searchType: SupportedSearchType) =>
   searchType === 'all' ? '' : `${searchType}`
 
-export const searchTypeNames = {
-  [IMAGE]: messages['search-type'][IMAGE],
-  [AUDIO]: messages['search-type'][AUDIO],
-  [VIDEO]: messages['search-type'][VIDEO],
-  [MODEL_3D]: messages['search-type'][MODEL_3D],
-  [ALL_MEDIA]: messages['search-type'][ALL_MEDIA],
+export const searchTypeNames = (dir: LanguageDirection = 'ltr') => {
+  const messages = getMessages(dir)
+  return {
+    [ALL_MEDIA]: messages['search-type'][ALL_MEDIA],
+    [AUDIO]: messages['search-type'][AUDIO],
+    [IMAGE]: messages['search-type'][IMAGE],
+    [VIDEO]: messages['search-type'][VIDEO],
+    [MODEL_3D]: messages['search-type'][MODEL_3D],
+  }
 }
 
 const isButtonPressed = async (page: Page, buttonSelector: string) => {
@@ -140,16 +160,17 @@ export const dismissTranslationBanner = async (page: Page) => {
 
 export const selectHomepageSearchType = async (
   page: Page,
-  searchType: SupportedSearchType
+  searchType: SupportedSearchType,
+  dir: LanguageDirection = 'ltr'
 ) => {
   const pageWidth = page.viewportSize()?.width
   if (pageWidth && pageWidth > smWidth) {
     await page.click('[aria-label="All content"]')
     await page.click(
-      `button[role="radio"]:has-text("${searchTypeNames[searchType]}")`
+      `button[role="radio"]:has-text("${searchTypeNames(dir)[searchType]}")`
     )
   } else {
-    await page.click(`button:has-text("${searchTypeNames[searchType]}")`)
+    await page.click(`button:has-text("${searchTypeNames(dir)[searchType]}")`)
   }
 }
 
@@ -159,7 +180,7 @@ export const goToSearchTerm = async (
   options: {
     searchType?: SupportedSearchType
     mode?: RenderMode
-    dir?: 'ltr' | 'rtl'
+    dir?: LanguageDirection
     query?: string // Only for SSR mode
   } = {}
 ) => {
@@ -177,17 +198,16 @@ export const goToSearchTerm = async (
     await dismissTranslationBanner(page)
     // Select the search type
     if (searchType !== 'all') {
-      await selectHomepageSearchType(page, searchType)
+      await selectHomepageSearchType(page, searchType, dir)
     }
     // Type search term
     const searchInput = page.locator('main input[type="search"]')
     await searchInput.type(term)
     // Click search button
     // Wait for navigation
-    const searchLabel = dir === 'ltr' ? 'Search' : 'يبحث'
     await Promise.all([
       page.waitForNavigation(),
-      page.click(`[aria-label="${searchLabel}"]`),
+      page.click(`[aria-label="${searchLabel(dir)}"]`),
     ])
     await page.waitForLoadState('networkidle')
   }
@@ -257,15 +277,6 @@ export const scrollDownAndUp = async (page: Page) => {
   await page.waitForLoadState('networkidle')
   await scrollToTop(page)
 }
-
-export const languageDirections = ['ltr', 'rtl'] as const
-
-export const renderingContexts = [
-  ['SSR', 'ltr'],
-  ['SSR', 'rtl'],
-  ['CSR', 'ltr'],
-  ['CSR', 'rtl'],
-] as const
 
 /**
  * Adds '/ar' prefix to a rtl route. The path should start with '/'
